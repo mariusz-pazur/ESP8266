@@ -2,5 +2,6 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/HomeAtion/homeation_remotedht2/Debug
+/HomeAtion/homeation_remotedht/Debug
+/HomeAtion/homeation_remotedht/__vm
 *.suo
