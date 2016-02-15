@@ -5,3 +5,5 @@
 /HomeAtion/homeation_remotedht/Debug
 /HomeAtion/homeation_remotedht/__vm
 *.suo
+/HomeAtion/homeation_remotedht_clientonly/__vm
+/HomeAtion/homeation_remotedht_clientonly/Debug
