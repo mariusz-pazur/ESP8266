@@ -7,3 +7,5 @@
 *.suo
 /HomeAtion/homeation_remotedht_clientonly/__vm
 /HomeAtion/homeation_remotedht_clientonly/Debug
+/HomeAtion/homeation_remotedhtledbuzz/Debug
+/HomeAtion/homeation_remotedhtledbuzz/__vm
