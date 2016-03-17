@@ -20,10 +20,10 @@ char static_ip[16] = "192.168.0.5";
 char static_gw[16] = "192.168.0.1";
 char static_sn[16] = "255.255.255.0";
 
-char thingspeakApiUrl[] = "api.thingspeak.com";
-char thingspeakParameters[61] = "/update?api_key=5C934TN5I8BRTLZN&field1=%s&field2=%s";
-const long thingspeakRequestInterval = 60000;
-unsigned long thingspeakPreviousMillis = 0;
+char domoticzApiUrl[] = "192.168.0.252";
+char domoticzParameters[] = "/json.htm?type=command&param=udevice&idx=5&nvalue=0&svalue=%s;%s;0";
+const long domoticzRequestInterval = 60000;
+unsigned long domoticzPreviousMillis = 0;
 
 ESP8266WebServer server(80);
 String webString = "";
@@ -32,7 +32,7 @@ const byte dhtPin = 2;
 DHT dht(dhtPin, DHT22, 11); // 11 works fine for ESP8266
 char str_temp[6];
 char str_humid[6];
-     
+
 unsigned long dhtPreviousReadMillis = 0;        // will store last temp was read
 const long dhtSensorInterval = 30000;              // interval at which to read sensor
 
@@ -47,7 +47,7 @@ void handle_root() {
 }
 
 void setup()
-{	
+{
 #ifdef DEBUG
 	Serial.begin(115200);
 #endif
@@ -57,9 +57,9 @@ void setup()
 	strip.Show();
 
 	DPRINTLN(static_ip);
-	DPRINTLN(thingspeakApiUrl);
-	DPRINTLN(thingspeakParameters);
-	
+	DPRINTLN(domoticzApiUrl);
+	DPRINTLN(domoticzParameters);
+
 	//set static ip
 	IPAddress _ip, _gw, _sn;
 	_ip.fromString(static_ip);
@@ -83,9 +83,9 @@ void setup()
 		server.send(200, "text/plain", webString);            // send to someones browser when asked
 	});
 
-	server.on("/humidity", []() {  		
+	server.on("/humidity", []() {
 		webString = "Humidity: " + String(str_humid) + "%";
-		server.send(200, "text/plain", webString);               
+		server.send(200, "text/plain", webString);
 	});
 
 	server.on("/reset", []() {
@@ -96,14 +96,14 @@ void setup()
 
 	server.on("/leds", []() {
 		DPRINTLN("LEDS");
-   String r = server.arg("r");
-   String g = server.arg("g");
-   String b = server.arg("b");
+		String r = server.arg("r");
+		String g = server.arg("g");
+		String b = server.arg("b");
 		for (int i = 0; i < numPixels; i++)
 		{
-			strip.SetPixelColor(i, RgbColor(r.toInt(), g.toInt(), b.toInt())); 
-			strip.Show(); 
-			delay(50); 
+			strip.SetPixelColor(i, RgbColor(r.toInt(), g.toInt(), b.toInt()));
+			strip.Show();
+			delay(50);
 		}
 		server.send(200, "text/plain", "OK");
 	});
@@ -113,21 +113,21 @@ void setup()
 void sendThingspeakRequest()
 {
 	unsigned long currentMillis = millis();
-	if (currentMillis - thingspeakPreviousMillis >= thingspeakRequestInterval)
+	if (currentMillis - domoticzPreviousMillis >= domoticzRequestInterval)
 	{
-		thingspeakPreviousMillis = currentMillis;
+		domoticzPreviousMillis = currentMillis;
 		WiFiClient client;
 		const int httpPort = 80;
-		if (!client.connect(thingspeakApiUrl, httpPort))
+		if (!client.connect(domoticzApiUrl, httpPort))
 		{
 			DPRINTLN("connection failed");
 			return;
 		}
 		// We now create a URI for the request
-		char parametersBuffer[61];
-		sprintf(parametersBuffer, thingspeakParameters, str_temp, str_humid);
+		char parametersBuffer[100];
+		sprintf(parametersBuffer, domoticzParameters, str_temp, str_humid);
 		String parameters(parametersBuffer);
-		String url(thingspeakApiUrl);
+		String url(domoticzApiUrl);
 		DPRINT("Requesting URL: ");
 		DPRINTLN(url);
 		// This will send the request to the server
@@ -175,7 +175,7 @@ void gettemperature()
 }
 
 void loop()
-{	
+{
 	server.handleClient();
 	sendThingspeakRequest();
 	gettemperature();
